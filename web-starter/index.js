@@ -7,14 +7,18 @@ var generators = require('yeoman-generator'),
   glob = Promise.promisify(require('glob')),
   GruntfileEditor = require('gruntfile-editor');
 
-var gruntTasks = [];
+var gruntTasks = {};
 
 module.exports = generators.Base.extend({
   initializing : function() {
     var that = this;
     this.options.addPlugin("grunt", {
-      addGruntTasks : function(task, pluginContext) {
-        gruntTasks.push({'task' : task, 'pluginContext' : pluginContext});
+      addGruntTasks : function(task, pluginContext, target, config) {
+        if (!gruntTasks.hasOwnProperty(task)) {
+          gruntTasks[task] = {};
+        }
+        gruntTasks[task][target] = config;
+        gruntTasks[task]['context'] = pluginContext;
       },
       addGruntDevDependency : function(dep) {
         var pf = that.options.parent.answers.package_file;
@@ -29,15 +33,24 @@ module.exports = generators.Base.extend({
     settings : function() {
       var done = this.async();
       this.fs.copy(
-          this.templatePath('Gruntfile.js'),
-          this.destinationPath('Gruntfile.js')
+        this.templatePath('Gruntfile.js'),
+        this.destinationPath('Gruntfile.js')
       );
       var that = this;
-      _.forEach(gruntTasks, function(gruntModule) {
-        that.fs.copy(
-          gruntModule.pluginContext.templatePath('tasks/config/' + gruntModule.task + '.js'),
-          that.destinationPath('tasks/config/' + gruntModule.task + '.js')
-        );
+      _.forEach(gruntTasks, function(taskValue, task) {
+        var target, targetConf;
+        _.forEach(taskValue, function(value, key) {
+          if(key!=='context') {
+            target = key;
+            targetConf = value;
+          }
+        });
+        var gruntTaskFile = that.fs.read(taskValue.context.templatePath('tasks/config/' + task + '.js'));
+        var editor = new GruntfileEditor(gruntTaskFile);
+
+        editor.insertConfig(target, JSON.stringify(targetConf));
+        
+        that.fs.writeFileSync('tasks/config/' + task + '.js', editor.toString());
       });
       done();
     }
