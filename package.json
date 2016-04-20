@@ -24,7 +24,8 @@
     "semver": "^5.1.0",
     "update-notifier": "^0.6.3",
     "yeoman-generator": "~0.22",
-    "yosay": "^1.1.1"
+    "yosay": "^1.1.1",
+    "gruntfile-editor": "https://github.com/forumone/gruntfile-editor.git#master"
   },
   "engines": {
     "node": ">=0.8.0",

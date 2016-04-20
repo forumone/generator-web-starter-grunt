@@ -49,8 +49,8 @@ module.exports = generators.Base.extend({
         var editor = new GruntfileEditor(gruntTaskFile);
 
         editor.insertConfig(target, JSON.stringify(targetConf));
-        
-        that.fs.writeFileSync('tasks/config/' + task + '.js', editor.toString());
+
+        that.fs.write('tasks/config/' + task + '.js', editor.toString());
       });
       done();
     }
