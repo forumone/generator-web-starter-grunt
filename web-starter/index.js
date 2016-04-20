@@ -19,34 +19,33 @@ module.exports = generators.Base.extend({
         }
         gruntTasks[task][target] = config;
         gruntTasks[task]['context'] = pluginContext;
-      },
-      addGruntDevDependency : function(dep) {
-        var pf = that.options.parent.answers.package_file;
-        if(pf.devDependencies.constructor !== Array) {
-          pf.devDependencies = [pf.devDependencies];
-        }
-        pf.devDependencies.push(dep);
       }
     });
   },
   writing : {
     settings : function() {
       var done = this.async();
-      this.fs.copy(
+      this.fs.copyTpl(
         this.templatePath('Gruntfile.js'),
-        this.destinationPath('Gruntfile.js')
+        this.destinationPath('Gruntfile.js'),
+        {}
       );
       var that = this;
       _.forEach(gruntTasks, function(taskValue, task) {
         var gruntTaskFile = that.fs.read(taskValue.context.templatePath('tasks/config/' + task + '.js'));
         var editor = new GruntfileEditor(gruntTaskFile);
-        var conf = {};
+        var conf = "{";
         _.forEach(taskValue, function(targetConf, target) {
           if(target!=='context') {
-            conf[target] = targetConf;
+            if(_.isObject(targetConf)) {
+              targetConf = JSON.stringify(targetConf);
+            }
+            conf += '"' + target + '": ' + targetConf + ',';
           }
         });
-        editor.insertConfig(task, JSON.stringify(conf));
+        conf = conf.substring(0,conf.length-1);
+        conf += "}";
+        editor.insertConfig(task, conf);
         that.fs.write('tasks/config/' + task + '.js', editor.toString());
       });
       done();
