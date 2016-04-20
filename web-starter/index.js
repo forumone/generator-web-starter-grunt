@@ -38,17 +38,14 @@ module.exports = generators.Base.extend({
       );
       var that = this;
       _.forEach(gruntTasks, function(taskValue, task) {
-        var target, targetConf;
-        _.forEach(taskValue, function(value, key) {
-          if(key!=='context') {
-            target = key;
-            targetConf = value;
-          }
-        });
         var gruntTaskFile = that.fs.read(taskValue.context.templatePath('tasks/config/' + task + '.js'));
         var editor = new GruntfileEditor(gruntTaskFile);
 
-        editor.insertConfig(target, JSON.stringify(targetConf));
+        _.forEach(taskValue, function(targetConf, target) {
+          if(target!=='context') {
+            editor.insertConfig(target, JSON.stringify(targetConf));
+          }
+        });
 
         that.fs.write('tasks/config/' + task + '.js', editor.toString());
       });
