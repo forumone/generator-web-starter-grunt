@@ -19,13 +19,13 @@
   "dependencies": {
     "bluebird": "^3.3.5",
     "glob": "^7.0.3",
+    "gruntfile-editor": "https://github.com/forumone/gruntfile-editor.git#master",
     "lodash": "^4.11",
     "request-promise": "^2.0.1",
     "semver": "^5.1.0",
     "update-notifier": "^0.6.3",
     "yeoman-generator": "~0.22",
-    "yosay": "^1.1.1",
-    "gruntfile-editor": "https://github.com/forumone/gruntfile-editor.git#master"
+    "yosay": "^1.1.1"
   },
   "engines": {
     "node": ">=0.8.0",
