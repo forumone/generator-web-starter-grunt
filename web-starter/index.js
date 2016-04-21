@@ -32,7 +32,13 @@ module.exports = generators.Base.extend({
       );
       var that = this;
       _.forEach(gruntTasks, function(taskValue, task) {
-        var gruntTaskFile = that.fs.read(taskValue.context.templatePath('tasks/config/' + task + '.js'));
+        var gruntTaskFile = false;
+        try {
+          // if there is a file in tasks/config/ it uses that one , if not it uses the grunt-editor/lib/default-gruntfile.js
+          gruntTaskFile = that.fs.read(taskValue.context.templatePath('tasks/config/' + task + '.js'));
+        }
+        catch (e) {
+        }
         var editor = new GruntfileEditor(gruntTaskFile);
         var conf = "{";
         _.forEach(taskValue, function(targetConf, target) {
@@ -46,6 +52,11 @@ module.exports = generators.Base.extend({
         conf = conf.substring(0,conf.length-1);
         conf += "}";
         editor.insertConfig(task, conf);
+        
+        // add  grunt.loadNpmTasks("grunt-task-name") if doesn't exist
+        if (editor.toString().indexOf('loadNpmTasks(') < 1) {
+          editor.loadNpmTasks(task);
+        }
         that.fs.write('tasks/config/' + task + '.js', editor.toString());
       });
       done();
