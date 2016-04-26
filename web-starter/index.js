@@ -22,14 +22,25 @@ module.exports = generators.Base.extend({
       }
     });
   },
+  configuring : {
+    addDefautTasks : function() {
+      if(typeof this.options.addDevDependency === "function" && this.options.getPlugin('grunt')) {
+        this.options.addDevDependency('grunt', '^0.4.5');
+        this.options.addDevDependency('include-all', '^0.1.6');
+        this.options.addDevDependency('load-grunt-tasks', '^3.2.0');
+      }
+    },
+  },
   writing : {
-    settings : function() {
-      var done = this.async();
+    writeGruntFile : function() {
       this.fs.copyTpl(
         this.templatePath('Gruntfile.js'),
         this.destinationPath('Gruntfile.js'),
         {}
       );
+    },
+    writeTasks : function() {
+      var done = this.async();
       var that = this;
       _.forEach(gruntTasks, function(taskValue, task) {
         /*
