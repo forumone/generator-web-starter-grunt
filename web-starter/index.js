@@ -13,12 +13,12 @@ module.exports = generators.Base.extend({
   initializing : function() {
     var that = this;
     this.options.addPlugin("grunt", {
-      addGruntTasks : function(task, pluginContext, target, config) {
+      addGruntTasks : function(task, npmModule, target, config) {
         if (!gruntTasks.hasOwnProperty(task)) {
           gruntTasks[task] = {};
         }
         gruntTasks[task][target] = config;
-        gruntTasks[task]['context'] = pluginContext;
+        gruntTasks[task]['npm'] = npmModule;
       }
     });
   },
@@ -32,6 +32,7 @@ module.exports = generators.Base.extend({
       );
       var that = this;
       _.forEach(gruntTasks, function(taskValue, task) {
+        /*
         var gruntTaskFile = false;
         try {
           // if there is a file in tasks/config/ it uses that one , if not it uses the grunt-editor/lib/default-gruntfile.js
@@ -39,10 +40,11 @@ module.exports = generators.Base.extend({
         }
         catch (e) {
         }
-        var editor = new GruntfileEditor(gruntTaskFile);
+        */
+        var editor = new GruntfileEditor(false);
         var conf = "{";
         _.forEach(taskValue, function(targetConf, target) {
-          if(target!=='context') {
+          if(target!=='npm') {
             if(_.isObject(targetConf)) {
               targetConf = JSON.stringify(targetConf);
             }
@@ -55,7 +57,7 @@ module.exports = generators.Base.extend({
         
         // add  grunt.loadNpmTasks("grunt-task-name") if doesn't exist
         if (editor.toString().indexOf('loadNpmTasks(') < 1) {
-          editor.loadNpmTasks(task);
+          editor.loadNpmTasks(taskValue.npm);
         }
         that.fs.write('tasks/config/' + task + '.js', editor.toString());
       });

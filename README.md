@@ -10,8 +10,8 @@ Allows other yeoman generators to add grunt tasks.
 In the 'configuring' yeoman generator context:
 
 ```js
-if(this.options.getPlugin('grunt')) {
-  this.options.getPlugin('grunt').addGruntTasks('postcss', this, 'theme1', {
+if(typeof this.options.getPlugin === "function" && this.options.getPlugin('grunt')) {
+  this.options.getPlugin('grunt').addGruntTasks('postcss', 'grunt-postcss', 'theme1', {
     src: 'build/css/*.css'
   });
 }
@@ -23,16 +23,19 @@ will output in the 'tasks/config/postcss.js'
     postcss: {
       'theme1': { 'src': 'build/css/*.css' },
   ...
+  grunt.loadNpmTasks('grunt-postcss');
+  ...
 ```
 
 Note: the grunt task configuration object can be plain text too.
 
-Note: if your yeoman generator provide a task file in 'tasks/config/' it will be used otherwise it uses the [grunt-editor](https://github.com/forumone/gruntfile-editor/blob/master/lib/default-gruntfile.js) one.
 
 ### Grunt dev dependency
 
 ```js
-this.options.addDevDependency('grunt-postcss', '^0.8.0');
+if(typeof this.options.addDevDependency === "function" && this.options.getPlugin('grunt')) {
+  this.options.addDevDependency('grunt-postcss', '^0.8.0');
+}
 ```
 will output in 'package.json'
 ```js
