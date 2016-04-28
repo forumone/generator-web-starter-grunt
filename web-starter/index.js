@@ -13,52 +13,33 @@ module.exports = generators.Base.extend({
   initializing : function() {
     var that = this;
     this.options.addPlugin("grunt", {
-      addGruntTasks : function(task, pluginContext, target, config) {
-        if (!gruntTasks.hasOwnProperty(task)) {
-          gruntTasks[task] = {};
+      getGruntTask : function(task) {
+        if (!_.has(gruntTasks, task)) {
+          gruntTasks[task] = new GruntfileEditor();
         }
-        gruntTasks[task][target] = config;
-        gruntTasks[task]['context'] = pluginContext;
+
+        return gruntTasks[task];
       }
     });
   },
   writing : {
-    settings : function() {
+    gruntFile : function() {
       var done = this.async();
       this.fs.copyTpl(
         this.templatePath('Gruntfile.js'),
         this.destinationPath('Gruntfile.js'),
         {}
       );
-      var that = this;
-      _.forEach(gruntTasks, function(taskValue, task) {
-        var gruntTaskFile = false;
-        try {
-          // if there is a file in tasks/config/ it uses that one , if not it uses the grunt-editor/lib/default-gruntfile.js
-          gruntTaskFile = that.fs.read(taskValue.context.templatePath('tasks/config/' + task + '.js'));
-        }
-        catch (e) {
-        }
-        var editor = new GruntfileEditor(gruntTaskFile);
-        var conf = "{";
-        _.forEach(taskValue, function(targetConf, target) {
-          if(target!=='context') {
-            if(_.isObject(targetConf)) {
-              targetConf = JSON.stringify(targetConf);
-            }
-            conf += '"' + target + '": ' + targetConf + ',';
-          }
-        });
-        conf = conf.substring(0,conf.length-1);
-        conf += "}";
-        editor.insertConfig(task, conf);
-        
-        // add  grunt.loadNpmTasks("grunt-task-name") if doesn't exist
-        if (editor.toString().indexOf('loadNpmTasks(') < 1) {
-          editor.loadNpmTasks(task);
-        }
-        that.fs.write('tasks/config/' + task + '.js', editor.toString());
+
+      done();
+    },
+    taskConfig : function() {
+      var done = this.async();
+
+      _.each(gruntTasks, function(editor, task) {
+        this.fs.write('tasks/config/' + task + '.js', editor.toString());
       });
+
       done();
     }
   }
