@@ -8,6 +8,7 @@ var generators = require('yeoman-generator'),
   GruntfileEditor = require('gruntfile-editor');
 
 var gruntTasks = {};
+var registeredTasks = {};
 
 module.exports = generators.Base.extend({
   initializing : function() {
@@ -19,6 +20,19 @@ module.exports = generators.Base.extend({
         }
 
         return gruntTasks[task];
+      },
+      registerTask : function(name, task, priority) {
+        if (!_.has(registeredTasks, name)) {
+          registeredTasks[name] = [];
+        }
+        
+        // Allow multiple tasks to be added at once
+        if (_.isArray(task)) {
+          registeredTasks[name] = registeredTasks[name].concat(task);
+        }
+        else {
+          registeredTasks[name].push({ task : task, priority : priority });
+        }
       }
     });
   },
@@ -48,6 +62,26 @@ module.exports = generators.Base.extend({
         that.fs.write(that.destinationPath('tasks/config/' + task + '.js'), editor.toString());
       });
 
+      done();
+    },
+    registeredTasks : function() {
+      var done = this.async();
+      var that = this;
+      
+      console.log(registeredTasks);
+      _.each(registeredTasks, function(tasks, name) {
+        var editor = new GruntfileEditor();
+        var sorted = _.chain(tasks)
+          .sortBy(['priority'])
+          .map(function(task) {
+            return task.task;
+          })
+          .value();
+        
+        editor.registerTask(name, sorted);
+        that.fs.write(that.destinationPath('tasks/register/' + name + '.js'), editor.toString());
+      });
+      
       done();
     }
   }
