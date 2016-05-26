@@ -5,13 +5,16 @@ var generators = require('yeoman-generator'),
   rp = require('request-promise'),
   semver = require('semver'),
   glob = Promise.promisify(require('glob')),
+  pkg = require('../package.json'),
   GruntfileEditor = require('gruntfile-editor');
 
 var gruntTasks = {};
 var registeredTasks = {};
+var registeredTasksEditor = {};
 
 module.exports = generators.Base.extend({
   initializing : function() {
+    this.options.addDevDependency(pkg.name, pkg.version);
     var that = this;
     this.options.addPlugin("grunt", {
       getGruntTask : function(task) {
@@ -24,8 +27,9 @@ module.exports = generators.Base.extend({
       registerTask : function(name, task, priority) {
         if (!_.has(registeredTasks, name)) {
           registeredTasks[name] = [];
+          registeredTasksEditor[name] = new GruntfileEditor();
         }
-        
+
         // Allow multiple tasks to be added at once
         if (_.isArray(task)) {
           registeredTasks[name] = registeredTasks[name].concat(task);
@@ -33,6 +37,7 @@ module.exports = generators.Base.extend({
         else {
           registeredTasks[name].push({ task : task, priority : priority });
         }
+        return registeredTasksEditor[name];
       }
     });
   },
@@ -67,21 +72,20 @@ module.exports = generators.Base.extend({
     registeredTasks : function() {
       var done = this.async();
       var that = this;
-      
-      console.log(registeredTasks);
+
       _.each(registeredTasks, function(tasks, name) {
-        var editor = new GruntfileEditor();
+        var editor = registeredTasksEditor[name];
         var sorted = _.chain(tasks)
           .sortBy(['priority'])
           .map(function(task) {
             return task.task;
           })
           .value();
-        
+
         editor.registerTask(name, sorted);
         that.fs.write(that.destinationPath('tasks/register/' + name + '.js'), editor.toString());
       });
-      
+
       done();
     }
   }
