@@ -14,7 +14,7 @@ var registeredTasksEditor = {};
 
 module.exports = generators.Base.extend({
   initializing : function() {
-    this.options.addDevDependency(pkg.name, '^' + pkg.version);
+    this.options.addDevDependency(pkg.name, '~' + pkg.version);
     var that = this;
     this.options.addPlugin("grunt", {
       getGruntTask : function(task) {
