@@ -11,14 +11,16 @@
  * Unless you know what you're doing, you shouldn't change this file.
  * Check out the `tasks` directory instead.
  */
+
 'use strict';
-module.exports = function(grunt) {
+
+module.exports = function (grunt) {
   // Load grunt contrib tasks automatically
   require('load-grunt-tasks')(grunt);
 
   // Initialize configuration with package.json data
   grunt.initConfig({
-    'pkg': grunt.file.readJSON('package.json')
+    pkg: grunt.file.readJSON('package.json'),
   });
 
   // Load the include-all library in order to require all of our grunt
@@ -46,7 +48,7 @@ module.exports = function(grunt) {
   function loadTasks(relPath) {
     return includeAll({
       dirname: require('path').resolve(__dirname, relPath),
-      filter: /(.+)\.js$/
+      filter: /(.+)\.js$/,
     }) || {};
   }
 
@@ -64,7 +66,7 @@ module.exports = function(grunt) {
 
   // Load task functions
   var taskConfigurations = loadTasks('./tasks/config'),
-      registerDefinitions = loadTasks('./tasks/register');
+    registerDefinitions = loadTasks('./tasks/register');
 
   // Ensure that a default task exists
   if (!registerDefinitions.default) {
