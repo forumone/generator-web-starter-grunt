@@ -6,22 +6,22 @@ var pkg = require('../package.json');
 var GruntfileEditor = require('gruntfile-editor');
 
 /**
- * @type {Object<string, GruntFileEditor>}
+ * @type {Object.<string, GruntFileEditor>}
  */
 var gruntTasks = {};
 
 /**
- * @type {Object<string, Object>}
+ * @type {Object.<string, Object>}
  */
 var registeredTasks = {};
 
 /**
- * @type {Object<string, GruntFileEditor>}
+ * @type {Object.<string, GruntFileEditor>}
  */
 var registeredTasksEditor = {};
 
 /**
- * @type {Array.string}
+ * @type {string[]}
  */
 var watchTasks = [];
 
@@ -43,7 +43,7 @@ function getGruntTask(task) {
  * Registers a task to be run during the watch phase
  *
  * @param {string} task
- * @return {Array.string}
+ * @return {string[]}
  */
 function registerWatchTask(task) {
   if (watchTasks.indexOf(task) === -1) {
