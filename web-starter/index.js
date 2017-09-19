@@ -91,8 +91,6 @@ module.exports = generators.Base.extend({
       this.options.addDevDependency('grunt', '^0.4.5');
       this.options.addDevDependency('include-all', '^0.1.6');
       this.options.addDevDependency('load-grunt-tasks', '^3.2.0');
-      this.options.addDevDependency('grunt-simple-watch', '^0.1.3');
-      this.options.addDevDependency('grunt-contrib-watch', '^1.0.0');
       this.options.addDevDependency('grunt-concurrent', '^2.3.1');
 
       var concurrent = getGruntTask('concurrent');
@@ -104,16 +102,6 @@ module.exports = generators.Base.extend({
       }));
 
       concurrent.loadNpmTasks('grunt-concurrent');
-
-      registerTask('default', [{
-        task: 'build',
-        priority: 50,
-      }]);
-
-      registerTask('default', [{
-        task: 'concurrent:watch',
-        priority: 99,
-      }]);
     },
   },
   writing: {
